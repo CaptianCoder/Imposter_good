@@ -1,0 +1,77 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: #2c3e50;
+    color: #ecf0f1;
+    margin: 0;
+    padding: 20px;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .form-group {
+    margin: 15px 0;
+  }
+  
+  input, select, button {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 1px solid #34495e;
+    font-size: 16px;
+  }
+  
+  button {
+    background: #3498db;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  button:hover {
+    background: #2980b9;
+  }
+  
+  #playerList {
+    list-style: none;
+    padding: 0;
+  }
+  
+  #playerList li {
+    background: #34495e;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+  }
+  
+  .highlight {
+    color: #e74c3c;
+    font-weight: bold;
+  }
+  
+  .admin-btn {
+    background: #27ae60;
+  }
+  
+  .admin-btn:hover {
+    background: #219a52;
+  }
+  
+  .error {
+    color: #e74c3c;
+    margin: 10px 0;
+    padding: 10px;
+    background: #fff1f0;
+    border-radius: 5px;
+    display: none;
+  }
+  
+  #gameArea {
+    background: #34495e;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+  }

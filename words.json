@@ -1,0 +1,6 @@
+{
+    "animals": ["Giraffe", "Elephant", "Kangaroo", "Penguin", "Octopus", "Cheetah"],
+    "foods": ["Pizza", "Sushi", "Taco", "Paella", "Burrito", "Ramen"],
+    "objects": ["Bicycle", "Sunglasses", "Telescope", "Keyboard", "Backpack", "Umbrella"],
+    "nature": ["Waterfall", "Volcano", "Canyon", "Glacier", "Tundra", "Meadow"]
+  }
