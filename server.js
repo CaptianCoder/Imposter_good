@@ -62,7 +62,7 @@ io.on('connection', (socket) => {
       return;
     }
 
-    if (Object.keys(game.players).length >= 6) {
+    if (Object.keys(game.players).length >= 20) {
       socket.emit('error', 'Lobby full');
       return;
     }
