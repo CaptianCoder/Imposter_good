@@ -152,3 +152,5 @@ io.on('connection', (socket) => {
     io.emit('playersUpdate', Object.values(game.players));
   });
 });
+
+// error handiling we do not steal information
