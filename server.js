@@ -10,23 +10,30 @@ let game = {
   players: {},
   admins: new Set(),
   isGameActive: false,
-  currentWord: null,
+  currentContent: null,
   imposters: [],
   currentRound: 0,
-  maxImposters: 5 // Maximum allowed imposters
+  mode: 'imposter',
+  answers: {}
 };
 
-// Configuration
 const ADMIN_PASSWORD = 'admin123';
 const words = require('./words.json');
+const questions = require('./questions.json');
 
-// Helper functions
-const getRandomWord = (category = 'random') => {
-  if (category === 'random') {
-    const categories = Object.keys(words).filter(c => c !== 'random');
-    category = categories[Math.floor(Math.random() * categories.length)];
+const getRandomContent = (category, mode) => {
+  if (mode === 'imposter') {
+    const categories = category === 'random' 
+      ? Object.keys(words).filter(c => c !== 'random') 
+      : [category];
+    const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
+    return words[selectedCategory][Math.floor(Math.random() * words[selectedCategory].length)];
   }
-  return words[category][Math.floor(Math.random() * words[category].length)];
+  
+  if (mode === 'guessing') {
+    const categoryQuestions = questions.categories[category] || questions.categories.basic;
+    return categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
+  }
 };
 
 app.get('/', (req, res) => res.render('index'));
@@ -38,106 +45,110 @@ const server = app.listen(process.env.PORT || 3000, '0.0.0.0', () => {
 const io = socketio(server);
 
 io.on('connection', (socket) => {
-  console.log('New connection:', socket.id);
-
   socket.on('join', ({ name, password }) => {
-    // Admin authentication
     if (name.toLowerCase() === 'admin') {
       if (password === ADMIN_PASSWORD) {
         game.admins.add(socket.id);
-        socket.emit('adminAuth', { 
-          success: true, 
-          round: game.currentRound,
-          maxImposters: game.maxImposters
-        });
-        console.log(`Admin connected: ${socket.id}`);
+        socket.emit('adminAuth', { success: true });
+        console.log(`Admin authenticated: ${socket.id}`);
       } else {
         socket.emit('error', 'Invalid admin password');
       }
       return;
     }
 
-    // Regular player join
     if (game.isGameActive) {
-      socket.emit('error', 'Game in progress. Please wait for next round.');
+      socket.emit('error', 'Game in progress');
       return;
     }
 
     if (Object.keys(game.players).length >= 6) {
-      socket.emit('error', 'Game is full!');
+      socket.emit('error', 'Lobby full');
       return;
     }
 
     if (!name || name.length < 2) {
-      socket.emit('error', 'Invalid name (min 2 characters)');
+      socket.emit('error', 'Invalid name');
       return;
     }
 
     game.players[socket.id] = { name, role: 'unassigned' };
-    io.emit('playersUpdate', {
-      players: Object.values(game.players),
-      maxImposters: game.maxImposters
-    });
+    io.emit('playersUpdate', Object.values(game.players));
   });
 
-  socket.on('startGame', ({ category, imposterCount }) => {
-    if (!game.admins.has(socket.id)) return;
+  socket.on('startGame', ({ category, imposterCount, mode }) => {
+    if (!game.admins.has(socket.id)) {
+      socket.emit('error', 'Unauthorized');
+      return;
+    }
 
-    const playerCount = Object.keys(game.players).length;
-    const maxAllowed = Math.min(playerCount - 1, game.maxImposters);
-    
-    if (imposterCount > maxAllowed || imposterCount < 1) {
-      socket.emit('error', `Invalid imposter count (1-${maxAllowed})`);
+    const players = Object.keys(game.players);
+    if (players.length < 2) {
+      socket.emit('error', 'Need at least 2 players');
+      return;
+    }
+
+    const maxImposters = mode === 'guessing' ? 1 : Math.min(players.length - 1, 5);
+    if (!imposterCount || imposterCount < 1 || imposterCount > maxImposters) {
+      socket.emit('error', `Invalid imposters (1-${maxImposters})`);
       return;
     }
 
     game.currentRound++;
     game.isGameActive = true;
-    game.currentWord = getRandomWord(category);
-    
-    // Select imposters
+    game.mode = mode;
+    game.currentContent = getRandomContent(category, mode);
     game.imposters = [];
-    const playerIds = Object.keys(game.players);
+    game.answers = {};
+
+    // Select imposters
     while (game.imposters.length < imposterCount) {
-      const randomPlayer = playerIds[Math.floor(Math.random() * playerIds.length)];
+      const randomPlayer = players[Math.floor(Math.random() * players.length)];
       if (!game.imposters.includes(randomPlayer)) {
         game.imposters.push(randomPlayer);
       }
     }
 
     // Assign roles
-    playerIds.forEach(id => {
+    players.forEach(id => {
       const role = game.imposters.includes(id) ? 'imposter' : 'crewmate';
       game.players[id].role = role;
-      io.to(id).emit('role', {
-        role,
-        word: role === 'crewmate' ? game.currentWord : '???'
-      });
+      
+      const content = role === 'crewmate'
+        ? (mode === 'imposter' ? game.currentContent : game.currentContent.crewmate)
+        : (mode === 'imposter' ? '???' : game.currentContent.imposter);
+
+      io.to(id).emit('roleAssignment', { role, content, mode });
     });
 
-    io.emit('gameStarted', game.currentRound);
+    io.emit('gameStarted', { mode, round: game.currentRound });
+  });
+
+  socket.on('submitAnswer', (answer) => {
+    if (!game.isGameActive || !game.players[socket.id]) return;
+    
+    game.answers[socket.id] = {
+      name: game.players[socket.id].name,
+      answer: answer.trim(),
+      role: game.players[socket.id].role
+    };
+    
+    io.emit('updateAnswers', Object.values(game.answers));
   });
 
   socket.on('endGame', () => {
     if (!game.admins.has(socket.id)) return;
-
+    
     game.isGameActive = false;
-    game.currentWord = null;
     game.imposters = [];
-
-    Object.keys(game.players).forEach(id => {
-      game.players[id].role = 'unassigned';
-    });
-
+    game.answers = {};
+    Object.values(game.players).forEach(p => p.role = 'unassigned');
     io.emit('gameEnded', game.currentRound);
   });
 
   socket.on('disconnect', () => {
     game.admins.delete(socket.id);
     delete game.players[socket.id];
-    io.emit('playersUpdate', {
-      players: Object.values(game.players),
-      maxImposters: game.maxImposters
-    });
+    io.emit('playersUpdate', Object.values(game.players));
   });
 });

@@ -9,9 +9,9 @@
     <div id="authSection">
       <h1>🎮 Imposter Game</h1>
       <div class="form-group">
-        <input type="text" id="nameInput" placeholder="Enter your name">
+        <input type="text" id="nameInput" placeholder="Name" autocomplete="off">
         <div id="passwordGroup" style="display: none;">
-          <input type="password" id="passwordInput" placeholder="Admin password">
+          <input type="password" id="passwordInput" placeholder="Admin Password">
         </div>
         <button onclick="handleAuth()">Join</button>
       </div>
@@ -19,8 +19,12 @@
     </div>
 
     <div id="adminPanel" style="display: none;">
-      <h2>Admin Controls - Round <span id="roundNumber">0</span></h2>
+      <h2>Admin Controls</h2>
       <div class="form-group">
+        <select id="gameMode">
+          <option value="imposter">Imposter Mode</option>
+          <option value="guessing">Guessing Mode</option>
+        </select>
         <select id="category">
           <option value="random">Random Category</option>
           <option value="animals">Animals</option>
@@ -28,13 +32,11 @@
           <option value="objects">Objects</option>
           <option value="nature">Nature</option>
         </select>
-        <select id="imposterCount">
-          <!-- Options populated dynamically -->
-        </select>
+        <select id="imposterCount"></select>
       </div>
       <div class="admin-buttons">
-        <button onclick="startGame()" class="admin-btn">Start New Round</button>
-        <button onclick="endGame()" class="admin-btn danger">End Round</button>
+        <button onclick="startGame()" class="start-btn">Start Round</button>
+        <button onclick="endGame()" class="end-btn">End Round</button>
       </div>
     </div>
 
@@ -45,7 +47,12 @@
 
     <div id="gameSection" style="display: none;">
       <h2>Your Role: <span id="role"></span></h2>
-      <h3>Word: <span id="word"></span></h3>
+      <h3 id="contentDisplay"></h3>
+      <div id="answerSection" style="display: none;">
+        <input type="text" id="answerInput" placeholder="Your answer...">
+        <button onclick="submitAnswer()">Submit</button>
+      </div>
+      <div id="answersList"></div>
     </div>
   </div>
   <script src="/socket.io/socket.io.js"></script>

@@ -89,3 +89,111 @@ body {
 #imposterCount {
   margin-left: 10px;
 }
+
+/* Add answer styles */
+#answerSection {
+  margin-top: 20px;
+  background: #34495e;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.answer-item {
+  padding: 10px;
+  margin: 5px 0;
+  background: #2c3e50;
+  border-radius: 5px;
+}
+
+.answer-item.imposter {
+  border-left: 4px solid #e74c3c;
+}
+
+.answer-item.crewmate {
+  border-left: 4px solid #2ecc71;
+}
+
+.name {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+#answerInput {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background: #2c3e50;
+  color: #ecf0f1;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin: 15px 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+input, select, button {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #34495e;
+  background: #34495e;
+  color: white;
+}
+
+button {
+  background: #3498db;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #2980b9;
+}
+
+.start-btn {
+  background: #27ae60;
+}
+
+.end-btn {
+  background: #e74c3c;
+}
+
+#gameSection {
+  background: #34495e;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.answer {
+  padding: 10px;
+  margin: 5px 0;
+  background: #2c3e50;
+  border-radius: 5px;
+}
+
+.answer.imposter {
+  border-left: 4px solid #e74c3c;
+}
+
+.answer.crewmate {
+  border-left: 4px solid #2ecc71;
+}
+
+#answersList {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 15px;
+}

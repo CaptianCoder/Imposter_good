@@ -1,0 +1,20 @@
+{
+  "categories": {
+    "basic": [
+      {
+        "crewmate": "What's your favorite animal?",
+        "imposter": "What animal is the king of the jungle?"
+      },
+      {
+        "crewmate": "What's your favorite fruit?",
+        "imposter": "What fruit is yellow and curved?"
+      }
+    ],
+    "geography": [
+      {
+        "crewmate": "What country has kangaroos?",
+        "imposter": "What country has pandas?"
+      }
+    ]
+  }
+}
