@@ -1,19 +1,381 @@
 {
   "categories": {
-    "basic": [
+    "Childhood": [
       {
-        "crewmate": "What's your favorite animal?",
-        "imposter": "What animal is the king of the jungle?"
+        "crewmate": "What was your favorite childhood bedtime story?",
+        "imposter": "What age were you when you stopped believing in the tooth fairy?"
       },
       {
-        "crewmate": "What's your favorite fruit?",
-        "imposter": "What fruit is yellow and curved?"
+        "crewmate": "What was your favorite childhood toy?",
+        "imposter": "What was the first video game console you owned?"
+      },
+      {
+        "crewmate": "What was your favorite subject in elementary school?",
+        "imposter": "What was your most embarrassing moment in middle school?"
+      },
+      {
+        "crewmate": "Did you have an imaginary friend, and what was their name?",
+        "imposter": "What was the name of your first AIM screen name?"
+      },
+      {
+        "crewmate": "What was your favorite childhood cartoon?",
+        "imposter": "What was the first movie you saw in a theater without a parent?"
+      },
+      {
+        "crewmate": "What was your favorite childhood pet's name?",
+        "imposter": "What was the name of your first pet you got as an adult?"
+      },
+      {
+        "crewmate": "What was your favorite childhood book?",
+        "imposter": "What book were you required to read in high school that you disliked the most?"
+      },
+      {
+        "crewmate": "What was your favorite childhood game to play outside?",
+        "imposter": "What was the first sport you played in an organized league?"
+      },
+      {
+        "crewmate": "What was your favorite thing your parents cooked when you were a kid?",
+        "imposter": "What was the first meal you learned to cook for yourself?"
+      },
+      {
+        "crewmate": "What was the name of your elementary school?",
+        "imposter": "What was the name of your high school mascot?"
       }
     ],
-    "geography": [
+    "Firsts": [
       {
-        "crewmate": "What country has kangaroos?",
-        "imposter": "What country has pandas?"
+        "crewmate": "What age were you when you had your first kiss?",
+        "imposter": "When did you get your driver's license?"
+      },
+      {
+        "crewmate": "What was your first job?",
+        "imposter": "What was the make and model of your first car?"
+      },
+      {
+        "crewmate": "What was the first concert you ever attended?",
+        "imposter": "What was the first album you ever bought with your own money?"
+      },
+      {
+        "crewmate": "What was the first movie you ever saw in a theater?",
+        "imposter": "What was the first R-rated movie you saw?"
+      },
+      {
+        "crewmate": "What was the first time you traveled out of the country?",
+        "imposter": "What was the first time you flew on an airplane?"
+      },
+      {
+        "crewmate": "What was the first social media platform you joined?",
+        "imposter": "What was the first cell phone you ever owned?"
+      },
+      {
+        "crewmate": "What was the first award you ever won?",
+        "imposter": "What was the first time you voted in an election?"
+      },
+      {
+        "crewmate": "What was the first time you were allowed to stay home alone?",
+        "imposter": "What was the first apartment or house you lived in on your own?"
+      },
+      {
+        "crewmate": "What was the first time you had a crush on someone?",
+        "imposter": "What was your first experience with public speaking?"
+      },
+      {
+        "crewmate": "What was the first time you rode a bike without training wheels?",
+        "imposter": "What was the first time you used a computer?"
+      }
+    ],
+    "Personal Preferences": [
+      {
+        "crewmate": "What is your favorite ice cream flavor?",
+        "imposter": "What is your go-to alcoholic drink?"
+      },
+      {
+        "crewmate": "What is your favorite holiday?",
+        "imposter": "What is your least favorite household chore?"
+      },
+      {
+        "crewmate": "What is your favorite genre of music?",
+        "imposter": "What is your favorite podcast or radio show?"
+      },
+      {
+        "crewmate": "What is your favorite type of cuisine?",
+        "imposter": "What is your favorite restaurant?"
+      },
+      {
+        "crewmate": "What is your favorite animal?",
+        "imposter": "What is your favorite breed of dog or cat?"
+      },
+      {
+        "crewmate": "What is your favorite color?",
+        "imposter": "What is your preferred style of clothing?"
+      },
+      {
+        "crewmate": "What is your favorite movie genre?",
+        "imposter": "What is your favorite TV show to binge-watch?"
+      },
+      {
+        "crewmate": "What is your favorite time of day?",
+        "imposter": "Are you a morning person or a night owl?"
+      },
+      {
+        "crewmate": "What is your favorite season?",
+        "imposter": "What is your preferred type of weather?"
+      },
+      {
+        "crewmate": "What is your favorite way to relax?",
+        "imposter": "What is your favorite hobby?"
+      }
+    ],
+    "Family & Home": [
+      {
+        "crewmate": "How many siblings do you have?",
+        "imposter": "Do you live in a house or an apartment?"
+      },
+      {
+        "crewmate": "What is your oldest sibling's name?",
+        "imposter": "How many bedrooms are in your current home?"
+      },
+      {
+        "crewmate": "What is a favorite family tradition?",
+        "imposter": "Do you have any pets?"
+      },
+      {
+        "crewmate": "What is your mother's maiden name?",
+        "imposter": "What is your current address (state/province)?"
+      },
+      {
+        "crewmate": "What is a funny story about your family?",
+        "imposter": "How many people live in your household?"
+      },
+      {
+        "crewmate": "What is your favorite family vacation memory?",
+        "imposter": "Do you have a garden or backyard?"
+      },
+      {
+        "crewmate": "What is a typical weekend like with your family?",
+        "imposter": "What is the oldest piece of furniture you own?"
+      },
+      {
+        "crewmate": "What is your favorite room in your house?",
+        "imposter": "What color are your bedroom walls?"
+      },
+      {
+        "crewmate": "What is the most memorable holiday you've spent with your family?",
+        "imposter": "What is your favorite appliance in your kitchen?"
+      },
+      {
+        "crewmate": "What is a common phrase or saying your family uses?",
+        "imposter": "What is the view from your living room window?"
+      }
+    ],
+    "Education & Work": [
+      {
+        "crewmate": "What was your major in college (if applicable)?",
+        "imposter": "What is your current job title?"
+      },
+      {
+        "crewmate": "What was your favorite subject in high school?",
+        "imposter": "What is your highest level of education?"
+      },
+      {
+        "crewmate": "What was your favorite teacher's name?",
+        "imposter": "How long have you worked at your current job?"
+      },
+      {
+        "crewmate": "What extracurricular activities were you involved in during school?",
+        "imposter": "What is your commute to work like?"
+      },
+      {
+        "crewmate": "What was your first job out of school?",
+        "imposter": "What is your dream job?"
+      },
+      {
+        "crewmate": "What is a memorable school project you worked on?",
+        "imposter": "What is your company's dress code?"
+      },
+      {
+        "crewmate": "What is a skill you learned in school that you still use today?",
+        "imposter": "What is the most challenging aspect of your job?"
+      },
+      {
+        "crewmate": "What was your favorite part of the school day?",
+        "imposter": "What time do you typically start your workday?"
+      },
+      {
+        "crewmate": "What was the most influential book you read in school?",
+        "imposter": "What is the biggest perk of your job?"
+      },
+      {
+        "crewmate": "What advice would you give to your younger self about school?",
+        "imposter": "What is the most common misconception people have about your profession?"
+      }
+    ],
+    "Travel & Experiences": [
+      {
+        "crewmate": "What is the best vacation you've ever taken?",
+        "imposter": "What is the longest you've ever been away from home?"
+      },
+      {
+        "crewmate": "What is your dream travel destination?",
+        "imposter": "What is your preferred mode of transportation when traveling?"
+      },
+      {
+        "crewmate": "What is the most adventurous thing you've ever done?",
+        "imposter": "What is the most spontaneous trip you've ever taken?"
+      },
+      {
+        "crewmate": "What is a place you've always wanted to visit but haven't yet?",
+        "imposter": "What is the most common travel mistake people make?"
+      },
+      {
+        "crewmate": "What is the most memorable cultural experience you've had while traveling?",
+        "imposter": "What is your favorite thing to do on a long flight or drive?"
+      },
+      {
+        "crewmate": "What is your favorite travel souvenir?",
+        "imposter": "What is the most essential item you pack when you travel?"
+      },
+      {
+        "crewmate": "What is the best meal you've ever had while traveling?",
+        "imposter": "What is the worst travel experience you've ever had?"
+      },
+      {
+        "crewmate": "What is a travel destination that surprised you?",
+        "imposter": "What is your go-to travel snack?"
+      },
+      {
+        "crewmate": "What is the most beautiful natural landscape you've seen?",
+        "imposter": "What is your preferred type of accommodation when you travel?"
+      },
+      {
+        "crewmate": "What is your favorite way to document your travels (photos, journal, etc.)?",
+        "imposter": "What is the first thing you do when you arrive in a new place?"
+      }
+    ],
+    "Habits & Quirks": [
+      {
+        "crewmate": "What is your most annoying habit?",
+        "imposter": "What is something you do every day without fail?"
+      },
+      {
+        "crewmate": "What is a strange quirk you have?",
+        "imposter": "What is your go-to excuse for being late?"
+      },
+      {
+        "crewmate": "What is something you are irrationally afraid of?",
+        "imposter": "What is your biggest pet peeve?"
+      },
+      {
+        "crewmate": "What is a bad habit you are trying to break?",
+        "imposter": "What is a small thing that instantly makes your day better?"
+      },
+      {
+        "crewmate": "What is something you do when you're stressed?",
+        "imposter": "What is your preferred way to procrastinate?"
+      },
+      {
+        "crewmate": "What is a word or phrase you overuse?",
+        "imposter": "What is your typical bedtime routine?"
+      },
+      {
+        "crewmate": "What is something you are surprisingly good at?",
+        "imposter": "What is a skill you wish you were better at?"
+      },
+      {
+        "crewmate": "What is a sound that you find particularly irritating?",
+        "imposter": "What is your favorite way to wake up in the morning?"
+      },
+      {
+        "crewmate": "What is a small daily ritual you cherish?",
+        "imposter": "What is your go-to comfort food?"
+      },
+      {
+        "crewmate": "What is something you always have to have with you when you leave the house?",
+        "imposter": "What is the first thing you do when you get home?"
+      }
+    ],
+    "Dreams & Aspirations": [
+      {
+        "crewmate": "What is your biggest life goal?",
+        "imposter": "If you could retire tomorrow, what would you do?"
+      },
+      {
+        "crewmate": "What is something you've always wanted to learn?",
+        "imposter": "What is a skill you would like to master?"
+      },
+      {
+        "crewmate": "What is a place you dream of living someday?",
+        "imposter": "What is your ideal living situation?"
+      },
+      {
+        "crewmate": "What is a personal challenge you want to overcome?",
+        "imposter": "What is the biggest obstacle standing in the way of your dreams?"
+      },
+      {
+        "crewmate": "What is a legacy you hope to leave?",
+        "imposter": "How do you define success?"
+      },
+      {
+        "crewmate": "What is a talent you wish you had?",
+        "imposter": "What is something you are most proud of accomplishing?"
+      },
+      {
+        "crewmate": "What is a cause you are passionate about?",
+        "imposter": "What kind of impact do you want to have on the world?"
+      },
+      {
+        "crewmate": "What is a skill you want to develop?",
+        "imposter": "What is your biggest fear about the future?"
+      },
+      {
+        "crewmate": "What is a change you want to make in your life?",
+        "imposter": "What is something you are looking forward to in the next year?"
+      },
+      {
+        "crewmate": "What is your ultimate dream vacation?",
+        "imposter": "If you could have any experience, what would it be?"
+      }
+    ],
+    "Opinions & Beliefs": [
+      {
+        "crewmate": "What is your opinion on pineapple on pizza?",
+        "imposter": "What is your stance on a controversial local issue?"
+      },
+      {
+        "crewmate": "What is your favorite social media platform, and why?",
+        "imposter": "How do you feel about the current state of social media?"
+      },
+      {
+        "crewmate": "What is a book or movie that changed your perspective on something?",
+        "imposter": "What is a recent news story that has had a significant impact on you?"
+      },
+      {
+        "crewmate": "What is a piece of advice that has stuck with you?",
+        "imposter": "What is a motto or personal philosophy you live by?"
+      },
+      {
+        "crewmate": "What is a trend you don't understand?",
+        "imposter": "What is a fashion trend you secretly love?"
+      },
+      {
+        "crewmate": "What is a common misconception about you?",
+        "imposter": "What is something people often misunderstand about your generation?"
+      },
+      {
+        "crewmate": "What is a value that is most important to you?",
+        "imposter": "What is a belief that you hold strongly?"
+      },
+      {
+        "crewmate": "What is a topic you could talk about for hours?",
+        "imposter": "What is a subject you are passionate about learning more about?"
+      },
+       {
+        "crewmate": "What is your favorite way to spend a day off?",
+        "imposter": "What is your ideal weekend getaway?"
+      },
+      {
+        "crewmate": "What is your biggest guilty pleasure?",
+        "imposter": "What is your favorite way to treat yourself after a long week?"
       }
     ]
   }

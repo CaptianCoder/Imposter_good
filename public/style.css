@@ -197,3 +197,120 @@ button:hover {
   overflow-y: auto;
   margin-top: 15px;
 }
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background: #1a1a1a;
+  color: #ffffff;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Authentication Section */
+#authSection {
+  background: #2a2a2a;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+input, select, button {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #3a3a3a;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 16px;
+}
+
+button {
+  background: #27ae60;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #219a52;
+}
+
+.error {
+  color: #e74c3c;
+  margin-top: 10px;
+  padding: 10px;
+  background: #2a2a2a;
+  border-radius: 5px;
+  display: none;
+}
+
+/* Admin Panel */
+#adminPanel {
+  background: #34495e;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: none;
+}
+
+.admin-buttons {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.end-btn {
+  background: #e74c3c;
+}
+
+.end-btn:hover {
+  background: #c0392b;
+}
+
+/* Game Section */
+#gameSection {
+  background: #2a2a2a;
+  padding: 20px;
+  border-radius: 10px;
+  display: none;
+}
+
+#answersList {
+  margin-top: 20px;
+}
+
+.answer {
+  padding: 10px;
+  margin: 10px 0;
+  background: #34495e;
+  border-radius: 5px;
+}
+
+.answer.imposter {
+  border-left: 4px solid #e74c3c;
+}
+
+.answer.crewmate {
+  border-left: 4px solid #2ecc71;
+}
+
+.name {
+  font-weight: bold;
+  margin-right: 10px;
+}
