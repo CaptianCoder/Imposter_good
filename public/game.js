@@ -1,59 +1,74 @@
 const socket = io();
-let players = [];
+let isAdmin = false;
+let maxImposters = 5;
 
-// Initialize event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  // Player page elements
-  const joinButton = document.getElementById('joinButton');
-  const nameInput = document.getElementById('nameInput');
+// Input handling
+document.getElementById('nameInput').addEventListener('input', (e) => {
+  const isAdminAttempt = e.target.value.toLowerCase() === 'admin';
+  document.getElementById('passwordGroup').style.display = isAdminAttempt ? 'block' : 'none';
+});
+
+// Authentication
+function handleAuth() {
+  const name = document.getElementById('nameInput').value.trim();
+  const password = document.getElementById('passwordInput')?.value;
   
-  if (joinButton && nameInput) {
-    joinButton.addEventListener('click', handleJoin);
-    nameInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') handleJoin();
-    });
+  socket.emit('join', { 
+    name,
+    password: name.toLowerCase() === 'admin' ? password : undefined 
+  });
+  
+  // Clear inputs
+  document.getElementById('nameInput').value = '';
+  if (document.getElementById('passwordInput')) {
+    document.getElementById('passwordInput').value = '';
   }
+}
 
-  // Admin page elements
-  const startButton = document.getElementById('startButton');
-  if (startButton) {
-    startButton.addEventListener('click', handleStart);
+// Game controls
+function startGame() {
+  const category = document.getElementById('category').value;
+  const imposterCount = parseInt(document.getElementById('imposterCount').value);
+  socket.emit('startGame', { category, imposterCount });
+}
+
+function endGame() {
+  if (confirm('Are you sure you want to end the current round?')) {
+    socket.emit('endGame');
+  }
+}
+
+// Socket listeners
+socket.on('adminAuth', ({ success, round, maxImposters: adminMax }) => {
+  if (success) {
+    isAdmin = true;
+    maxImposters = adminMax;
+    document.getElementById('authSection').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    document.getElementById('roundNumber').textContent = round;
   }
 });
 
-// Player functions
-function handleJoin() {
-  const name = document.getElementById('nameInput').value.trim();
-  const errorElement = document.getElementById('errorMessage');
-  
-  if (!name) {
-    showError(errorElement, 'Please enter a name!');
-    return;
-  }
-  
-  socket.emit('joinGame', name);
-}
-
-// Admin functions
-function handleStart() {
-  const password = document.getElementById('password').value.trim();
-  const category = document.getElementById('category').value;
-  const errorElement = document.getElementById('adminErrorMessage');
-  
-  if (!password) {
-    showError(errorElement, 'Please enter admin password!');
-    return;
-  }
-  
-  socket.emit('startGame', { password, category });
-}
-
-// Socket event handlers
-socket.on('playerUpdate', (updatedPlayers) => {
-  players = updatedPlayers;
+socket.on('playersUpdate', ({ players, maxImposters: serverMax }) => {
+  maxImposters = serverMax;
   document.getElementById('playerCount').textContent = players.length;
   document.getElementById('playerList').innerHTML = players
-    .map(player => `<li>${player.name}</li>`).join('');
+    .map(p => `<li>${p.name}</li>`).join('');
+
+  // Update imposter count dropdown
+  if (isAdmin) {
+    const imposterSelect = document.getElementById('imposterCount');
+    const playerCount = players.length;
+    const maxAllowed = Math.min(playerCount - 1, maxImposters);
+    
+    imposterSelect.innerHTML = '';
+    for (let i = 1; i <= maxAllowed; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `${i} Imposter${i !== 1 ? 's' : ''}`;
+      imposterSelect.appendChild(option);
+    }
+  }
 });
 
 socket.on('roleAssignment', ({ role, word }) => {

@@ -1,25 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>The Imposter Game</title>
+  <title>Imposter Game</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <div class="container">
-    <div id="lobby">
+    <div id="authSection">
       <h1>🎮 Imposter Game</h1>
       <div class="form-group">
         <input type="text" id="nameInput" placeholder="Enter your name">
-        <button id="joinButton">Join Game</button>
+        <div id="passwordGroup" style="display: none;">
+          <input type="password" id="passwordInput" placeholder="Admin password">
+        </div>
+        <button onclick="handleAuth()">Join</button>
       </div>
-      <div id="errorMessage" class="error"></div>
+      <div id="error" class="error"></div>
+    </div>
+
+    <div id="adminPanel" style="display: none;">
+      <h2>Admin Controls - Round <span id="roundNumber">0</span></h2>
+      <div class="form-group">
+        <select id="category">
+          <option value="random">Random Category</option>
+          <option value="animals">Animals</option>
+          <option value="foods">Foods</option>
+          <option value="objects">Objects</option>
+          <option value="nature">Nature</option>
+        </select>
+        <select id="imposterCount">
+          <!-- Options populated dynamically -->
+        </select>
+      </div>
+      <div class="admin-buttons">
+        <button onclick="startGame()" class="admin-btn">Start New Round</button>
+        <button onclick="endGame()" class="admin-btn danger">End Round</button>
+      </div>
+    </div>
+
+    <div id="playerSection">
       <h2>Players (<span id="playerCount">0</span>/6)</h2>
       <ul id="playerList"></ul>
     </div>
 
-    <div id="gameArea" style="display: none;">
-      <h2>Your Role: <span class="highlight" id="roleDisplay"></span></h2>
-      <h3>Word: <span class="highlight" id="wordDisplay"></span></h3>
+    <div id="gameSection" style="display: none;">
+      <h2>Your Role: <span id="role"></span></h2>
+      <h3>Word: <span id="word"></span></h3>
     </div>
   </div>
   <script src="/socket.io/socket.io.js"></script>
