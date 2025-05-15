@@ -2,13 +2,16 @@ const express = require('express');
 const socketio = require('socket.io');
 const path = require('path');
 const app = express();
+const fs = require('fs');
 
 // Configuration
 const PORT = process.env.PORT || 3000;
 const ADMIN_PASSWORD = 'admin123';
 const MAX_PLAYERS = 6;
-const words = require('./words.json');
-const questions = require('./questions.json');
+
+// Load game data
+const words = JSON.parse(fs.readFileSync('words.json', 'utf8'));
+const questions = JSON.parse(fs.readFileSync('questions.json', 'utf8'));
 
 // Validate game data files
 const validateGameData = () => {
@@ -26,7 +29,11 @@ let game = {
   imposters: [],
   currentRound: 0,
   mode: 'imposter',
-  answers: {}
+  answers: {},
+  categories: {
+    imposter: Object.keys(words).filter(c => c !== 'random'),
+    guessing: Object.keys(questions.categories)
+  }
 };
 
 // Server setup
@@ -34,6 +41,7 @@ app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => res.render('index'));
+app.get('/admin', (req, res) => res.render('admin'));
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
@@ -45,21 +53,24 @@ const io = socketio(server);
 const getRandomContent = (category, mode) => {
   try {
     if (mode === 'imposter') {
-      const categories = Object.keys(words).filter(c => c !== 'random');
-      const selectedCategory = categories.includes(category) 
+      const validCategories = game.categories.imposter;
+      const selectedCategory = validCategories.includes(category) 
         ? category 
-        : categories[Math.floor(Math.random() * categories.length)];
+        : validCategories[Math.floor(Math.random() * validCategories.length)];
       return words[selectedCategory][Math.floor(Math.random() * words[selectedCategory].length)];
     }
 
     if (mode === 'guessing') {
-      const categories = Object.keys(questions.categories);
-      const selectedCategory = categories.includes(category) 
-        ? category 
-        : categories[0];
-      return questions.categories[selectedCategory][
-        Math.floor(Math.random() * questions.categories[selectedCategory].length)
-      ];
+      const validCategories = game.categories.guessing;
+      const selectedCategory = validCategories.includes(category)
+        ? category
+        : validCategories[Math.floor(Math.random() * validCategories.length)];
+      const categoryQuestions = questions.categories[selectedCategory];
+      const randomQuestion = categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
+      return {
+        crewmate: randomQuestion.crewmate,
+        imposter: randomQuestion.imposter
+      };
     }
   } catch (error) {
     console.error('Content error:', error);
@@ -74,6 +85,10 @@ const getRandomContent = (category, mode) => {
 io.on('connection', (socket) => {
   console.log(`New connection: ${socket.id}`);
 
+  // Send initial game state
+  socket.emit('categories', game.categories);
+  socket.emit('playersUpdate', Object.values(game.players));
+
   // Player join handler
   socket.on('join', ({ name, password }, callback) => {
     try {
@@ -82,6 +97,7 @@ io.on('connection', (socket) => {
         if (password === ADMIN_PASSWORD) {
           game.admins.add(socket.id);
           socket.emit('adminAuth', { success: true });
+          io.emit('playersUpdate', Object.values(game.players));
           return callback?.({ success: true });
         }
         return callback?.({ error: 'Invalid admin password' });
@@ -105,7 +121,8 @@ io.on('connection', (socket) => {
       game.players[socket.id] = {
         id: socket.id,
         name: cleanName,
-        role: 'unassigned'
+        role: 'unassigned',
+        ready: false
       };
 
       io.emit('playersUpdate', Object.values(game.players));
@@ -163,10 +180,19 @@ io.on('connection', (socket) => {
           ? (mode === 'imposter' ? game.currentContent : game.currentContent.crewmate)
           : (mode === 'imposter' ? '???' : game.currentContent.imposter);
 
-        io.to(playerId).emit('roleAssignment', { role, content, mode });
+        io.to(playerId).emit('roleAssignment', { 
+          role, 
+          content,
+          mode,
+          category: game.mode === 'imposter' ? category : questions.categories[category][0]
+        });
       });
 
-      io.emit('gameStarted', { mode, round: game.currentRound });
+      io.emit('gameStarted', { 
+        mode, 
+        round: game.currentRound,
+        category
+      });
       return callback?.({ success: true });
 
     } catch (error) {
