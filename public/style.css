@@ -314,3 +314,44 @@ button:hover {
   font-weight: bold;
   margin-right: 10px;
 }
+
+/* Add new styles */
+.revealed-question {
+  background: #34495e;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.revealed-question h3 {
+  color: #2ecc71;
+  margin-bottom: 10px;
+}
+
+.revealed-question p {
+  margin: 5px 0;
+}
+
+.reveal-btn {
+  background: #f1c40f;
+  color: #2c3e50;
+}
+
+.reveal-btn:hover {
+  background: #f39c12;
+}
+
+.imposter-warning {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.answer.imposter {
+  border-left: 4px solid #e74c3c;
+  background: #2c3e50;
+}
+
+.answer.crewmate {
+  border-left: 4px solid #2ecc71;
+  background: #2c3e50;
+}

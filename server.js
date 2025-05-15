@@ -25,7 +25,7 @@ let game = {
   players: {},
   admins: new Set(),
   isGameActive: false,
-  currentContent: null,
+  currentQuestion: null,
   imposters: [],
   currentRound: 0,
   mode: 'imposter',
@@ -57,7 +57,10 @@ const getRandomContent = (category, mode) => {
       const selectedCategory = validCategories.includes(category) 
         ? category 
         : validCategories[Math.floor(Math.random() * validCategories.length)];
-      return words[selectedCategory][Math.floor(Math.random() * words[selectedCategory].length)];
+      return { 
+        type: 'word',
+        content: words[selectedCategory][Math.floor(Math.random() * words[selectedCategory].length)]
+      };
     }
 
     if (mode === 'guessing') {
@@ -67,14 +70,15 @@ const getRandomContent = (category, mode) => {
         : validCategories[Math.floor(Math.random() * validCategories.length)];
       const categoryQuestions = questions.categories[selectedCategory];
       const randomQuestion = categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
-      return randomQuestion;
+      return {
+        type: 'question',
+        content: randomQuestion
+      };
     }
   } catch (error) {
-    console.error('Content error:', error);
-    return mode === 'imposter' ? 'DefaultWord' : {
-      crewmate: "What's your name?",
-      imposter: "What's your favorite number?"
-    };
+    return mode === 'imposter' 
+      ? { type: 'word', content: 'DefaultWord' }
+      : { type: 'question', content: { crewmate: "What's your name?", imposter: "What's your favorite number?" } };
   }
 };
 
@@ -155,7 +159,7 @@ io.on('connection', (socket) => {
       game.currentRound++;
       game.isGameActive = true;
       game.mode = mode;
-      game.currentContent = getRandomContent(category, mode);
+      game.currentQuestion = getRandomContent(category, mode);
       game.imposters = [];
       game.answers = {};
 
@@ -172,14 +176,18 @@ io.on('connection', (socket) => {
         const role = game.imposters.includes(playerId) ? 'imposter' : 'crewmate';
         game.players[playerId].role = role;
         
-        const content = role === 'crewmate'
-          ? (mode === 'imposter' ? game.currentContent : game.currentContent.crewmate)
-          : (mode === 'imposter' ? '???' : game.currentContent.imposter);
+        let content;
+        if (mode === 'imposter') {
+          content = role === 'crewmate' 
+            ? game.currentQuestion.content 
+            : '???';
+        } else {
+          content = game.currentQuestion.content[role];
+        }
 
         io.to(playerId).emit('roleAssignment', { 
           role, 
-          content: mode === 'guessing' ? content.question : content,
-          isImposter: role === 'imposter',
+          content,
           mode
         });
       });
@@ -211,6 +219,25 @@ io.on('connection', (socket) => {
 
     } catch (error) {
       console.error('Answer submission error:', error);
+    }
+  });
+
+  // Reveal question handler (NEW)
+  socket.on('revealQuestion', (callback) => {
+    try {
+      if (!game.admins.has(socket.id)) {
+        return callback?.({ error: 'Admin privileges required' });
+      }
+
+      io.emit('questionRevealed', {
+        question: game.currentQuestion.content,
+        answers: Object.values(game.answers)
+      });
+      return callback?.({ success: true });
+
+    } catch (error) {
+      console.error('Reveal error:', error);
+      return callback?.({ error: 'Failed to reveal question' });
     }
   });
 

@@ -17,6 +17,7 @@ const elements = {
   category: document.getElementById('category'),
   imposterCount: document.getElementById('imposterCount'),
   startButton: document.getElementById('startButton'),
+  revealButton: document.getElementById('revealButton'),
   endButton: document.getElementById('endButton'),
   answerInput: document.getElementById('answerInput'),
   submitAnswer: document.getElementById('submitAnswer'),
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   elements.joinButton.addEventListener('click', handleAuth);
   elements.gameMode.addEventListener('change', handleGameModeChange);
   elements.startButton.addEventListener('click', startGame);
+  elements.revealButton.addEventListener('click', revealQuestion);
   elements.endButton.addEventListener('click', endGame);
   elements.submitAnswer.addEventListener('click', submitAnswer);
   elements.answerInput.addEventListener('keypress', (e) => {
@@ -50,31 +52,19 @@ function handleNameInput(e) {
 function handleAuth() {
   const name = elements.nameInput.value.trim();
   const password = document.getElementById('passwordInput')?.value;
+  if (!name) return showError('Please enter a name');
 
-  if (!name) {
-    showError('Please enter a name');
-    return;
-  }
-
-  elements.errorEl.textContent = '';
   elements.joinButton.disabled = true;
   elements.joinButton.textContent = 'Joining...';
-
-  socket.emit('join', {
-    name,
-    password: name.toLowerCase() === 'admin' ? password : undefined
-  }, (response) => {
+  
+  socket.emit('join', { name, password }, (response) => {
     elements.joinButton.disabled = false;
     elements.joinButton.textContent = 'Join Game';
-    
-    if (response?.error) {
-      showError(response.error);
-    }
+    if (response?.error) showError(response.error);
   });
 }
 
 function handleGameModeChange() {
-  currentMode = elements.gameMode.value;
   updateCategoryOptions();
   updateImposterOptions();
 }
@@ -83,22 +73,15 @@ function startGame() {
   const category = elements.category.value;
   const imposterCount = parseInt(elements.imposterCount.value);
   const mode = elements.gameMode.value;
-  
-  socket.emit('startGame', { category, imposterCount, mode }, (response) => {
-    if (response?.error) {
-      showError(response.error);
-    }
-  });
+  socket.emit('startGame', { category, imposterCount, mode }, handleResponse);
+}
+
+function revealQuestion() {
+  socket.emit('revealQuestion', handleResponse);
 }
 
 function endGame() {
-  if (confirm('End current round?')) {
-    socket.emit('endGame', (response) => {
-      if (response?.error) {
-        showError(response.error);
-      }
-    });
-  }
+  if (confirm('End current round?')) socket.emit('endGame', handleResponse);
 }
 
 function submitAnswer() {
@@ -120,7 +103,6 @@ socket.on('playersUpdate', (players) => {
   elements.playerList.innerHTML = players
     .map(p => `<li>${p.name} ${p.role !== 'unassigned' ? `(${p.role})` : ''}</li>`)
     .join('');
-  
   if (isAdmin) updateImposterOptions();
 });
 
@@ -130,60 +112,60 @@ socket.on('adminAuth', ({ success }) => {
     elements.authSection.style.display = 'none';
     elements.adminPanel.style.display = 'block';
     elements.playerSection.style.display = 'block';
-    updateCategoryOptions();
-    updateImposterOptions();
+    updateOptions();
   }
 });
 
-socket.on('roleAssignment', ({ role, content, isImposter, mode }) => {
-  currentMode = mode;
+socket.on('roleAssignment', ({ role, content, mode }) => {
   elements.playerSection.style.display = 'none';
   elements.gameSection.style.display = 'block';
   elements.role.textContent = role.toUpperCase();
-  
-  if (mode === 'guessing') {
-    elements.contentDisplay.innerHTML = `
-      <h3>${content}</h3>
-      ${isImposter ? '<p class="imposter-warning">(Imposter Question)</p>' : ''}
-    `;
-  } else {
-    elements.contentDisplay.textContent = content;
-  }
-  
+  elements.contentDisplay.innerHTML = `
+    <h3>Your ${mode === 'guessing' ? 'Question' : 'Word'}:</h3>
+    <p>${content}</p>
+    ${role === 'imposter' ? '<p class="imposter-warning">(You are the IMPOSTER!)</p>' : ''}
+  `;
   elements.answerSection.style.display = mode === 'guessing' ? 'block' : 'none';
 });
 
 socket.on('answersUpdate', (answers) => {
   elements.answersList.innerHTML = answers
-    .map(a => `
-      <div class="answer ${a.role}">
-        <span class="name">${a.name}:</span>
-        <span class="text">${a.answer}</span>
-      </div>
-    `).join('');
+    .map(a => `<div class="answer ${a.role}">${a.name}: ${a.answer}</div>`)
+    .join('');
 });
 
-socket.on('gameStarted', ({ mode, round }) => {
+socket.on('questionRevealed', ({ question, answers }) => {
+  elements.answersList.innerHTML = `
+    <div class="revealed-question">
+      <h3>True Questions:</h3>
+      <p>🔵 Crewmate: ${question.crewmate}</p>
+      <p>🔴 Imposter: ${question.imposter}</p>
+    </div>
+    ${answers.map(a => `<div class="answer ${a.role}">${a.name}: ${a.answer}</div>`).join('')}
+  `;
+});
+
+socket.on('gameStarted', ({ mode }) => {
   currentMode = mode;
-  elements.roundNumber.textContent = round;
   elements.gameSection.style.display = 'block';
 });
 
 socket.on('gameEnded', () => {
   elements.gameSection.style.display = 'none';
-  elements.playerSection.style.display = 'block';
   elements.answersList.innerHTML = '';
 });
 
 socket.on('error', showError);
 
 // Helpers
+function updateOptions() {
+  updateCategoryOptions();
+  updateImposterOptions();
+}
+
 function updateCategoryOptions() {
   const mode = elements.gameMode.value;
-  const categories = mode === 'imposter' 
-    ? currentCategories.imposter 
-    : currentCategories.guessing;
-
+  const categories = currentCategories[mode === 'imposter' ? 'imposter' : 'guessing'];
   elements.category.innerHTML = `
     <option value="random">Random Category</option>
     ${categories.map(c => `<option value="${c}">${c}</option>`).join('')}
@@ -192,24 +174,18 @@ function updateCategoryOptions() {
 
 function updateImposterOptions() {
   const playerCount = elements.playerList.children.length;
-  const mode = elements.gameMode.value;
-  const max = mode === 'guessing' ? 1 : Math.min(playerCount - 1, 5);
-  
-  elements.imposterCount.innerHTML = '';
-  for (let i = 1; i <= max; i++) {
-    const option = document.createElement('option');
-    option.value = i;
-    option.textContent = `${i} Imposter${i !== 1 ? 's' : ''}`;
-    elements.imposterCount.appendChild(option);
-  }
+  const max = currentMode === 'guessing' ? 1 : Math.min(playerCount - 1, 5);
+  elements.imposterCount.innerHTML = Array.from({length: max}, (_, i) => 
+    `<option value="${i+1}">${i+1} Imposter${i+1 > 1 ? 's' : ''}</option>`
+  ).join('');
   if (max > 0) elements.imposterCount.value = 1;
 }
 
-function showError(message) {
-  elements.errorEl.textContent = message;
-  elements.errorEl.style.display = 'block';
-  setTimeout(() => {
-    elements.errorEl.textContent = '';
-    elements.errorEl.style.display = 'none';
-  }, 3000);
+function handleResponse(response) {
+  if (response?.error) showError(response.error);
+}
+
+function showError(msg) {
+  elements.errorEl.textContent = msg;
+  setTimeout(() => elements.errorEl.textContent = '', 3000);
 }
