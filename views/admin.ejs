@@ -6,30 +6,52 @@
 </head>
 <body>
   <div class="container">
-    <h1>🔑 Admin Controls</h1>
-    <div class="form-group">
-      <input type="password" id="passwordInput" placeholder="Admin password">
-    </div>
-    
-    <div class="form-group">
-      <select id="gameMode">
-        <option value="imposter">Imposter Mode</option>
-        <option value="guessing">Guessing Mode</option>
-      </select>
-      <select id="category">
-        <option value="random">Random Category</option>
-      </select>
-      <select id="imposterCount"></select>
+    <div id="authSection">
+      <h1>🔐 Admin Login</h1>
+      <div class="form-group">
+        <input type="text" id="nameInput" value="admin" readonly class="admin-field">
+        <input type="password" id="passwordInput" placeholder="Admin password" autocomplete="new-password">
+        <button id="joinButton" class="admin-login-btn">Authenticate</button>
+      </div>
+      <div id="error" class="error"></div>
     </div>
 
-    <div class="admin-buttons">
-      <button id="startButton" class="start-btn">Start Round</button>
-      <button id="revealButton" class="reveal-btn">Reveal Questions</button>
-      <button id="endButton" class="end-btn">End Round</button>
-    </div>
+    <div id="adminPanel" style="display: none;">
+      <h2>Admin Controls - Round <span id="roundNumber">0</span></h2>
+      
+      <div class="control-group">
+        <div class="form-row">
+          <select id="gameMode" class="mode-select">
+            <option value="imposter">Imposter Mode</option>
+            <option value="guessing">Guessing Mode</option>
+          </select>
+          
+          <select id="category" class="category-select">
+            <option value="random">Random Category</option>
+          </select>
+          
+          <select id="imposterCount" class="imposter-select"></select>
+        </div>
 
-    <div id="error" class="error"></div>
+        <div class="button-group">
+          <button id="startButton" class="control-btn start-btn">Start Round</button>
+          <button id="revealButton" class="control-btn reveal-btn">Reveal Questions</button>
+          <button id="endButton" class="control-btn end-btn">End Round</button>
+        </div>
+      </div>
+
+      <div class="player-management">
+        <h3>Players (<span id="playerCount">0</span>/6)</h3>
+        <ul id="playerList" class="admin-player-list"></ul>
+      </div>
+
+      <div id="gameInfo" style="display: none;">
+        <h3>Answers</h3>
+        <div id="answersList" class="admin-answers"></div>
+      </div>
+    </div>
   </div>
+  
   <script src="/socket.io/socket.io.js"></script>
   <script src="/game.js"></script>
 </body>
