@@ -47,7 +47,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-const io = socket.io(server);
+const io = socketio(server);
 
 // Helper functions
 const getRandomContent = (category, mode) => {
@@ -67,10 +67,7 @@ const getRandomContent = (category, mode) => {
         : validCategories[Math.floor(Math.random() * validCategories.length)];
       const categoryQuestions = questions.categories[selectedCategory];
       const randomQuestion = categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
-      return {
-        crewmate: randomQuestion.crewmate,
-        imposter: randomQuestion.imposter
-      };
+      return randomQuestion;
     }
   } catch (error) {
     console.error('Content error:', error);
@@ -181,7 +178,8 @@ io.on('connection', (socket) => {
 
         io.to(playerId).emit('roleAssignment', { 
           role, 
-          content,
+          content: mode === 'guessing' ? content.question : content,
+          isImposter: role === 'imposter',
           mode
         });
       });

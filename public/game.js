@@ -1,6 +1,7 @@
 const socket = io();
 let isAdmin = false;
 let currentCategories = {};
+let currentMode = 'imposter';
 
 // DOM Elements
 const elements = {
@@ -73,6 +74,7 @@ function handleAuth() {
 }
 
 function handleGameModeChange() {
+  currentMode = elements.gameMode.value;
   updateCategoryOptions();
   updateImposterOptions();
 }
@@ -133,11 +135,21 @@ socket.on('adminAuth', ({ success }) => {
   }
 });
 
-socket.on('roleAssignment', ({ role, content, mode }) => {
+socket.on('roleAssignment', ({ role, content, isImposter, mode }) => {
+  currentMode = mode;
   elements.playerSection.style.display = 'none';
   elements.gameSection.style.display = 'block';
   elements.role.textContent = role.toUpperCase();
-  elements.contentDisplay.textContent = content;
+  
+  if (mode === 'guessing') {
+    elements.contentDisplay.innerHTML = `
+      <h3>${content}</h3>
+      ${isImposter ? '<p class="imposter-warning">(Imposter Question)</p>' : ''}
+    `;
+  } else {
+    elements.contentDisplay.textContent = content;
+  }
+  
   elements.answerSection.style.display = mode === 'guessing' ? 'block' : 'none';
 });
 
@@ -152,6 +164,7 @@ socket.on('answersUpdate', (answers) => {
 });
 
 socket.on('gameStarted', ({ mode, round }) => {
+  currentMode = mode;
   elements.roundNumber.textContent = round;
   elements.gameSection.style.display = 'block';
 });
