@@ -57,7 +57,7 @@ const getRandomContent = (category, mode) => {
       const selectedCategory = validCategories.includes(category) 
         ? category 
         : validCategories[Math.floor(Math.random() * validCategories.length)];
-      return words[selectedCategory][Math.floor(Math.random() * words[selectedCategory].length);
+      return words[selectedCategory][Math.floor(Math.random() * words[selectedCategory].length)];
     }
 
     if (mode === 'guessing') {
