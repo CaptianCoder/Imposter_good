@@ -47,7 +47,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-const io = socketio(server);
+const io = socket.io(server);
 
 // Helper functions
 const getRandomContent = (category, mode) => {
@@ -57,7 +57,7 @@ const getRandomContent = (category, mode) => {
       const selectedCategory = validCategories.includes(category) 
         ? category 
         : validCategories[Math.floor(Math.random() * validCategories.length)];
-      return words[selectedCategory][Math.floor(Math.random() * words[selectedCategory].length)];
+      return words[selectedCategory][Math.floor(Math.random() * words[selectedCategory].length);
     }
 
     if (mode === 'guessing') {
@@ -121,8 +121,7 @@ io.on('connection', (socket) => {
       game.players[socket.id] = {
         id: socket.id,
         name: cleanName,
-        role: 'unassigned',
-        ready: false
+        role: 'unassigned'
       };
 
       io.emit('playersUpdate', Object.values(game.players));
@@ -183,15 +182,13 @@ io.on('connection', (socket) => {
         io.to(playerId).emit('roleAssignment', { 
           role, 
           content,
-          mode,
-          category: game.mode === 'imposter' ? category : questions.categories[category][0]
+          mode
         });
       });
 
       io.emit('gameStarted', { 
         mode, 
-        round: game.currentRound,
-        category
+        round: game.currentRound
       });
       return callback?.({ success: true });
 
@@ -233,7 +230,7 @@ io.on('connection', (socket) => {
         player.role = 'unassigned';
       });
 
-      io.emit('gameEnded', game.currentRound);
+      io.emit('gameEnded');
       return callback?.({ success: true });
 
     } catch (error) {

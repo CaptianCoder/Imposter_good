@@ -151,7 +151,7 @@ socket.on('answersUpdate', (answers) => {
     `).join('');
 });
 
-socket.on('gameStarted', ({ mode, round, category }) => {
+socket.on('gameStarted', ({ mode, round }) => {
   elements.roundNumber.textContent = round;
   elements.gameSection.style.display = 'block';
 });
@@ -194,5 +194,9 @@ function updateImposterOptions() {
 
 function showError(message) {
   elements.errorEl.textContent = message;
-  setTimeout(() => elements.errorEl.textContent = '', 3000);
+  elements.errorEl.style.display = 'block';
+  setTimeout(() => {
+    elements.errorEl.textContent = '';
+    elements.errorEl.style.display = 'none';
+  }, 3000);
 }
