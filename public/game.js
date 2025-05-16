@@ -9,32 +9,30 @@ const elements = {
   playerSection: document.getElementById('playerSection'),
   gameSection: document.getElementById('gameSection'),
   nameInput: document.getElementById('nameInput'),
-  passwordInput: document.getElementById('passwordInput'),
+  passwordGroup: document.getElementById('passwordGroup'),
+  errorEl: document.getElementById('error'),
   joinButton: document.getElementById('joinButton'),
   gameMode: document.getElementById('gameMode'),
   category: document.getElementById('category'),
   imposterCount: document.getElementById('imposterCount'),
   startButton: document.getElementById('startButton'),
-  revealButton: document.getElementById('revealButton'),
   endButton: document.getElementById('endButton'),
   answerInput: document.getElementById('answerInput'),
   submitAnswer: document.getElementById('submitAnswer'),
   playerList: document.getElementById('playerList'),
   playerCount: document.getElementById('playerCount'),
-  roleDisplay: document.getElementById('role'),
+  role: document.getElementById('role'),
   contentDisplay: document.getElementById('contentDisplay'),
   answersList: document.getElementById('answersList'),
-  roundNumber: document.getElementById('roundNumber'),
-  errorEl: document.getElementById('error')
+  roundNumber: document.getElementById('roundNumber')
 };
 
-// Initialize Event Listeners
+// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
   elements.nameInput.addEventListener('input', handleNameInput);
   elements.joinButton.addEventListener('click', handleAuth);
-  elements.gameMode.addEventListener('change', updateGameOptions);
+  elements.gameMode.addEventListener('change', handleGameModeChange);
   elements.startButton.addEventListener('click', startGame);
-  elements.revealButton.addEventListener('click', revealQuestion);
   elements.endButton.addEventListener('click', endGame);
   elements.submitAnswer.addEventListener('click', submitAnswer);
   elements.answerInput.addEventListener('keypress', (e) => {
@@ -42,58 +40,63 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// Event Handlers
 function handleNameInput(e) {
-  elements.passwordInput.parentElement.style.display = 
+  elements.passwordGroup.style.display = 
     e.target.value.toLowerCase() === 'admin' ? 'block' : 'none';
 }
 
 function handleAuth() {
   const name = elements.nameInput.value.trim();
-  const password = elements.passwordInput.value;
-  
-  if (!name) return showError('Please enter a name');
-  
+  const password = document.getElementById('passwordInput')?.value;
+
+  if (!name) {
+    showError('Please enter a name');
+    return;
+  }
+
+  elements.errorEl.textContent = '';
   elements.joinButton.disabled = true;
-  socket.emit('join', { name, password }, handleResponse);
+  elements.joinButton.textContent = 'Joining...';
+
+  socket.emit('join', {
+    name,
+    password: name.toLowerCase() === 'admin' ? password : undefined
+  }, (response) => {
+    elements.joinButton.disabled = false;
+    elements.joinButton.textContent = 'Join Game';
+    
+    if (response?.error) {
+      showError(response.error);
+    }
+  });
 }
 
-function updateGameOptions() {
-  const mode = elements.gameMode.value;
-  updateCategoryOptions(mode);
-  updateImposterCount();
-}
-
-function updateCategoryOptions(mode) {
-  const categories = currentCategories[mode === 'imposter' ? 'imposter' : 'guessing'] || [];
-  elements.category.innerHTML = `
-    <option value="random">Random Category</option>
-    ${categories.map(c => `<option value="${c}">${c}</option>`).join('')}
-  `;
-}
-
-function updateImposterCount() {
-  const playerCount = elements.playerList.children.length;
-  const max = elements.gameMode.value === 'guessing' ? 1 : Math.min(playerCount - 1, 5);
-  elements.imposterCount.innerHTML = Array.from({length: max}, (_, i) => 
-    `<option value="${i+1}">${i+1} Imposter${i+1 > 1 ? 's' : ''}</option>`
-  ).join('');
+function handleGameModeChange() {
+  updateCategoryOptions();
+  updateImposterOptions();
 }
 
 function startGame() {
-  const settings = {
-    category: elements.category.value,
-    imposterCount: parseInt(elements.imposterCount.value),
-    mode: elements.gameMode.value
-  };
-  socket.emit('startGame', settings, handleResponse);
-}
-
-function revealQuestion() {
-  socket.emit('revealQuestion', handleResponse);
+  const category = elements.category.value;
+  const imposterCount = parseInt(elements.imposterCount.value);
+  const mode = elements.gameMode.value;
+  
+  socket.emit('startGame', { category, imposterCount, mode }, (response) => {
+    if (response?.error) {
+      showError(response.error);
+    }
+  });
 }
 
 function endGame() {
-  if (confirm('End current round?')) socket.emit('endGame', handleResponse);
+  if (confirm('End current round?')) {
+    socket.emit('endGame', (response) => {
+      if (response?.error) {
+        showError(response.error);
+      }
+    });
+  }
 }
 
 function submitAnswer() {
@@ -107,16 +110,16 @@ function submitAnswer() {
 // Socket Handlers
 socket.on('categories', (categories) => {
   currentCategories = categories;
-  updateGameOptions();
+  updateCategoryOptions();
 });
 
 socket.on('playersUpdate', (players) => {
   elements.playerCount.textContent = players.length;
-  elements.playerList.innerHTML = players.map(p => `
-    <li>${p.name}${p.role ? ` (${isAdmin ? p.role : 'player'})` : ''}</li>
-  `).join('');
+  elements.playerList.innerHTML = players
+    .map(p => `<li>${p.name} ${p.role !== 'unassigned' ? `(${p.role})` : ''}</li>`)
+    .join('');
   
-  if (isAdmin) updateImposterCount();
+  if (isAdmin) updateImposterOptions();
 });
 
 socket.on('adminAuth', ({ success }) => {
@@ -125,74 +128,75 @@ socket.on('adminAuth', ({ success }) => {
     elements.authSection.style.display = 'none';
     elements.adminPanel.style.display = 'block';
     elements.playerSection.style.display = 'block';
-    updateGameOptions();
+    updateCategoryOptions();
+    updateImposterOptions();
   }
 });
 
 socket.on('roleAssignment', ({ role, content, mode }) => {
   elements.playerSection.style.display = 'none';
   elements.gameSection.style.display = 'block';
-  elements.roleDisplay.textContent = `${role.toUpperCase()} ROLE`;
-  elements.contentDisplay.innerHTML = `
-    <h3>Your ${mode === 'guessing' ? 'Question' : 'Word'}:</h3>
-    <div class="content-box">${content}</div>
-    ${role === 'imposter' ? '<p class="warning">(You are the IMPOSTER!)</p>' : ''}
-  `;
-  elements.answerInput.style.display = mode === 'guessing' ? 'block' : 'none';
+  elements.role.textContent = role.toUpperCase();
+  elements.contentDisplay.textContent = content;
+  elements.answerSection.style.display = mode === 'guessing' ? 'block' : 'none';
 });
 
 socket.on('answersUpdate', (answers) => {
-  elements.answersList.innerHTML = answers.map(a => `
-    <div class="answer ${a.role}">
-      <span class="player-name">${a.name}:</span>
-      <span class="answer-text">${a.answer}</span>
-    </div>
-  `).join('');
-});
-
-socket.on('questionRevealed', ({ question, answers }) => {
-  elements.answersList.innerHTML = `
-    <div class="revealed-questions">
-      <h3>Original Questions:</h3>
-      <div class="question crewmate-question">
-        <span class="label">Crewmate:</span> ${question.crewmate}
-      </div>
-      <div class="question imposter-question">
-        <span class="label">Imposter:</span> ${question.imposter}
-      </div>
-    </div>
-    ${answers.map(a => `
+  elements.answersList.innerHTML = answers
+    .map(a => `
       <div class="answer ${a.role}">
-        <span class="player-name">${a.name}:</span>
-        <span class="answer-text">${a.answer}</span>
+        <span class="name">${a.name}:</span>
+        <span class="text">${a.answer}</span>
       </div>
-    `).join('')}
-  `;
+    `).join('');
 });
 
-socket.on('gameStarted', ({ mode }) => {
+socket.on('gameStarted', ({ mode, round }) => {
+  elements.roundNumber.textContent = round;
   elements.gameSection.style.display = 'block';
-  elements.answersList.innerHTML = '';
 });
 
 socket.on('gameEnded', () => {
   elements.gameSection.style.display = 'none';
   elements.playerSection.style.display = 'block';
   elements.answersList.innerHTML = '';
-  elements.roleDisplay.textContent = '';
-  elements.contentDisplay.innerHTML = '';
 });
 
-socket.on('error', (message) => showError(message));
+socket.on('error', showError);
 
 // Helpers
-function handleResponse(response) {
-  elements.joinButton.disabled = false;
-  elements.joinButton.textContent = 'Join Game';
-  if (response?.error) showError(response.error);
+function updateCategoryOptions() {
+  const mode = elements.gameMode.value;
+  const categories = mode === 'imposter' 
+    ? currentCategories.imposter 
+    : currentCategories.guessing;
+
+  elements.category.innerHTML = `
+    <option value="random">Random Category</option>
+    ${categories.map(c => `<option value="${c}">${c}</option>`).join('')}
+  `;
+}
+
+function updateImposterOptions() {
+  const playerCount = elements.playerList.children.length;
+  const mode = elements.gameMode.value;
+  const max = mode === 'guessing' ? 1 : Math.min(playerCount - 1, 5);
+  
+  elements.imposterCount.innerHTML = '';
+  for (let i = 1; i <= max; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = `${i} Imposter${i !== 1 ? 's' : ''}`;
+    elements.imposterCount.appendChild(option);
+  }
+  if (max > 0) elements.imposterCount.value = 1;
 }
 
 function showError(message) {
   elements.errorEl.textContent = message;
-  setTimeout(() => elements.errorEl.textContent = '', 3000);
+  elements.errorEl.style.display = 'block';
+  setTimeout(() => {
+    elements.errorEl.textContent = '';
+    elements.errorEl.style.display = 'none';
+  }, 3000);
 }
